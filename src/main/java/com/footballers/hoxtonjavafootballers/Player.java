@@ -11,9 +11,12 @@ import javax.persistence.ManyToOne;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Player {
@@ -25,9 +28,10 @@ public class Player {
     public Integer scoreOutOfTen;
     public boolean isReplacement;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "teamId", nullable = true)
-    private Team team;
+    public Team team;
 
     public Player() {
     }
@@ -38,16 +42,23 @@ class PlayerController {
     @Autowired
     private PlayerRepo playerRepo;
 
+    @Autowired
+    private TeamRepo teamRepo;
+
     @GetMapping("/players")
     public List<Player> getAllPlayers() {
         return playerRepo.findAll();
     }
 
-    @PostMapping("/players")
-    public Player createPlayer(@RequestBody Player playerData) {
+    @PostMapping("/teams/{teamId}/players")
+    public Player createPlayer(@RequestBody Player playerData, @PathVariable Integer teamId) {
+        playerData.team = teamRepo.findById(teamId).get();
         return playerRepo.save(playerData);
     }
 }
 
 interface PlayerRepo extends JpaRepository<Player, Integer> {
+}
+
+interface TeamRepo extends JpaRepository<Team, Integer> {
 }

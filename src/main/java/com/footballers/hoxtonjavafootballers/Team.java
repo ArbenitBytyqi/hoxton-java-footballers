@@ -23,7 +23,7 @@ public class Team {
     public String name;
 
     @OneToMany(mappedBy = "team")
-    private Set<Player> players;
+    public Set<Player> players;
 
     public Team() {
     }
